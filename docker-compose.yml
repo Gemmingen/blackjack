@@ -15,12 +15,11 @@ services:
     build: .
     depends_on:
       - mysql
-    environment:
-      DB_USER: root
-      DB_PASSWORD: password
-      DB_HOST: mysql
-      DB_PORT: "3306"
-      DB_NAME: blackjack
+    command: ["./wait-for-it.sh", "mysql:3306", "--", "npm", "start"] 
+ 
+    env_file:
+      - env/app.env
+
     ports:
       - "8080:8080"
     networks:
