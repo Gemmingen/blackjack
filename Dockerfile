@@ -11,10 +11,6 @@ RUN go mod tidy
 # Kopiere den gesamten Code in den Container
 COPY . .
 
-COPY wait-for-mysql.sh /wait-for-mysql.sh
-RUN chmod +x /wait-for-mysql.sh
-
-
 # Baue die Go-Anwendung
 RUN go build -o blackjack .
-CMD ["/wait-for-mysql.sh"]
+CMD ["./blackjack"]
