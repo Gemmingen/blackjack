@@ -34,11 +34,12 @@ func writeTable(db *sql.DB, bank int, streak int, wins int, loses int) {
 }
 
 func connectDB() *sql.DB {
-	dbUser := os.Getenv("DB_USER")
-	dbPassword := os.Getenv("DB_PASSWORD")
-	dbHost := os.Getenv("DB_HOST")
-	dbPort := os.Getenv("DB_PORT")
-	dbName := os.Getenv("DB_NAME")
+
+	dbUser := "root"         //os.Getenv("DB_USER")
+	dbPassword := "password" //os.Getenv("DB_PASSWORD")
+	dbHost := "localhost"    // localhost <-> mysql                     //os.Getenv("DB_HOST")
+	dbPort := "3306"         //os.Getenv("DB_PORT")
+	dbName := "blackjack"    //os.Getenv("DB_NAME")
 
 	fmt.Println("DB_USER:", dbUser)
 	fmt.Println("DB_PASSWORD:", dbPassword)
@@ -63,22 +64,24 @@ func connectDB() *sql.DB {
 		time.Sleep(2 * time.Second)
 	}
 
+	err = db.Ping() // Ping sendet ein Signal, um die Verbindung zu testen
+	if err != nil {
+		log.Fatalf("Fehler bei der Verbindung zur Datenbank: %v", err)
+	}
 	fmt.Println("Verbindung zur Datenbank erfolgreich!")
 
-	testDatabaseConnection(db)
-	createTable := `
-    CREATE TABLE IF NOT EXISTS results (
-        id INT AUTO_INCREMENT,
-        bank INT,
-        streak INT,
+	createTableSQL := `CREATE TABLE IF NOT EXISTS results (
+		bank INT,
+		streak INT, 
 		wins INT, 
-		loses INT, 
-        PRIMARY KEY (id)
-    );`
-	_, err = db.Exec(createTable)
+		loses INT
+	);`
+
+	_, err = db.Exec(createTableSQL)
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	return db
 }
 
@@ -317,7 +320,7 @@ func main() {
 	writeTable(dbconnection, player.Bank, player.Streak, player.Win, player.Loses)
 
 	playBlackjack(player)
-	testDatabaseConnection(dbconnection)
+	//testDatabaseConnection(dbconnection)
 	updateBank(filename, player)
 	fmt.Printf("Ihr neues Guthaben: %d\n", player.Bank)
 	defer dbconnection.Close()

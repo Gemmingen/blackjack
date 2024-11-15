@@ -1,3 +1,4 @@
+version: '3.8'
 services:
   mysql:
     image: mysql:8.0
@@ -5,25 +6,28 @@ services:
       MYSQL_ROOT_PASSWORD: password
       MYSQL_DATABASE: blackjack
     ports:
-      - "3306:3306"
-    networks:
-      - my_network
+      - "3306:3306"  # Ermöglicht den externen Zugriff auf MySQL
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+      timeout: 1s
+      retries: 100
+      interval: 3s
+      start_period: 3s
+
 
   blackjack-app:
     build: .
     depends_on:
-      - mysql
+      mysql:
+        condition: service_healthy
+
     environment:
       DB_USER: root
       DB_PASSWORD: password
-      DB_HOST: mysql
+      DB_HOST: "mysql"  # Verweist auf die statische IP von MySQL
       DB_PORT: "3306"
       DB_NAME: blackjack
     ports:
       - "8080:8080"
-    networks:
-      - my_network
 
-networks:
-  my_network:
-    driver: bridge
+
